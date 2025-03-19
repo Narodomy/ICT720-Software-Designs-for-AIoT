@@ -60,19 +60,28 @@ void setup() {
     2,                 // Priority of the task
     NULL               // Task handle to keep track of created task
   );
-  mqtt_client.setServer("192.168.1.109", 1883);
+  mqtt_client.setServer("broker.emqx.io", 1883);
   mqtt_client.setCallback(on_message);
   mqtt_client.connect("Narodomy");
   mqtt_client.subscribe("ict720/#");
-  mqtt_client.subscribe("ict720/narodomy");
+  mqtt_client.subscribe("ict720/meowsteam/narodomy/data");
   Serial.println("Connected to MQTT broker");
 }
 
   
 void loop() {
+  float data = random(0, 100)/100.0;
+  char payload[100];
+  doc.clear();
+  doc["name"] = "DomySCP208";
+  doc["millis"] = millis();
+  doc["mac"] = WiFi.macAddress().c_str();
+  doc["rssi"] = WiFi.RSSI();
+  doc["ip"] = WiFi.localIP().toString().c_str();
+  serializeJson(doc, payload);
+  mqtt_client.publish("ict720/meowsteam/narodomy/data", payload);
   mqtt_client.loop();
-  mqtt_client.publish("ict720/narodomy", "Hello U Chicken Khang");
-  delay(10000);
+  delay(3000);
 }
 
 void task_read_mic(void *pvParameters) {
